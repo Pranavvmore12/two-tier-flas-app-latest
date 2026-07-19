@@ -15,28 +15,36 @@ pipeline {
             }
         }
 
+
         stage('Build Docker Image') {
             steps {
-                sh 'docker build -t $IMAGE_NAME:$TAG .'
+                sh '''
+                docker build -t $IMAGE_NAME:$TAG .
+                '''
             }
         }
 
+
         stage('Docker Login') {
             steps {
+
                 withCredentials([
                     usernamePassword(
                         credentialsId: 'dockerhub',
-                        usernameVariable: 'pranavvmore12',
-                        passwordVariable: 'Aa110904@'
+                        usernameVariable: 'DOCKER_USER',
+                        passwordVariable: 'DOCKER_PASS'
                     )
                 ]) {
 
                     sh '''
-                    echo $PASS | docker login -u $USER --password-stdin
+                    echo $DOCKER_PASS | docker login \
+                    -u $DOCKER_USER \
+                    --password-stdin
                     '''
                 }
             }
         }
+
 
         stage('Push Image') {
             steps {
@@ -50,6 +58,7 @@ pipeline {
             }
         }
 
+
         stage('Deploy') {
             steps {
                 sh '''
@@ -58,6 +67,5 @@ pipeline {
                 '''
             }
         }
-
     }
 }
